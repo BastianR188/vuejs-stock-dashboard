@@ -4,8 +4,9 @@
       <CustomCard v-for="ticker in stockTickers" :key="ticker.symbol" :ticker="ticker.symbol" :name="ticker.name"
         :data="stockData[ticker.symbol]" :loading="loading[ticker.symbol]" :error="error[ticker.symbol]" />
     </div>
-    <div>
-      <RevenueChart :stockData="stockData" />
+    <div class="box-diagramm">
+      <RevenueChart :stockData="stockData" class="line-chart" />
+      <RevenueDonutChart :stockData="stockData" class="donut-chart" />
     </div>
   </div>
 </template>
@@ -15,12 +16,14 @@ import { reactive, ref, onMounted } from 'vue';
 import CustomCard from '@/component/CustomCard.vue';
 // import ApiService from '@/services/apiService';
 import RevenueChart from './component/RevenueChart.vue';
+import RevenueDonutChart from './component/RevenueDonutChart.vue'
 
 export default {
   name: 'App',
   components: {
     CustomCard,
-    RevenueChart
+    RevenueChart,
+    RevenueDonutChart
   },
   setup() {
     // const stockTickers = [
@@ -115,57 +118,57 @@ export default {
       loading,
       error,
 
-    // const fetchStockData = async (ticker) => {
-    //   loading[ticker.symbol] = true;
-    //   error[ticker.symbol] = null;
-    //   try {
-    //     const response = await ApiService.fetchData(ticker.symbol, Object.values(ticker.indices));
-    //     console.log(`Raw data for ${ticker.symbol}:`, response);
+      // const fetchStockData = async (ticker) => {
+      //   loading[ticker.symbol] = true;
+      //   error[ticker.symbol] = null;
+      //   try {
+      //     const response = await ApiService.fetchData(ticker.symbol, Object.values(ticker.indices));
+      //     console.log(`Raw data for ${ticker.symbol}:`, response);
 
-    //     if (Array.isArray(response)) {
-    //       // Mapping der Daten
-    //       const mappedData = Object.keys(ticker.indices).reduce((acc, key, index) => {
-    //         const dataObject = response[index];
-    //         if (dataObject && typeof dataObject === 'object') {
-    //           // Entferne den ersten Eintrag (der leere Schlüssel-Wert-Paar)
-    //           const rest = { ...dataObject };
-    //           delete rest[""];
-    //           acc[key] = rest;
-    //         } else {
-    //           acc[key] = dataObject;
-    //         }
-    //         return acc;
-    //       }, {});
+      //     if (Array.isArray(response)) {
+      //       // Mapping der Daten
+      //       const mappedData = Object.keys(ticker.indices).reduce((acc, key, index) => {
+      //         const dataObject = response[index];
+      //         if (dataObject && typeof dataObject === 'object') {
+      //           // Entferne den ersten Eintrag (der leere Schlüssel-Wert-Paar)
+      //           const rest = { ...dataObject };
+      //           delete rest[""];
+      //           acc[key] = rest;
+      //         } else {
+      //           acc[key] = dataObject;
+      //         }
+      //         return acc;
+      //       }, {});
 
-    //       stockData.value[ticker.symbol] = mappedData;
-    //       console.log(`Mapped data for ${ticker.symbol}:`, mappedData);
-    //     } else {
-    //       console.error(`Unexpected data structure for ${ticker.symbol}:`, response);
-    //       stockData.value[ticker.symbol] = {};
-    //       error[ticker.symbol] = `Invalid data structure for ${ticker.symbol}`;
-    //     }
-    //   } catch (err) {
-    //     console.error(`Error fetching data for ${ticker.symbol}:`, err);
-    //     error[ticker.symbol] = `Error fetching data for ${ticker.symbol}: ${err.message}`;
-    //     stockData.value[ticker.symbol] = {};
-    //   } finally {
-    //     loading[ticker.symbol] = false;
-    //   }
-    // };
+      //       stockData.value[ticker.symbol] = mappedData;
+      //       console.log(`Mapped data for ${ticker.symbol}:`, mappedData);
+      //     } else {
+      //       console.error(`Unexpected data structure for ${ticker.symbol}:`, response);
+      //       stockData.value[ticker.symbol] = {};
+      //       error[ticker.symbol] = `Invalid data structure for ${ticker.symbol}`;
+      //     }
+      //   } catch (err) {
+      //     console.error(`Error fetching data for ${ticker.symbol}:`, err);
+      //     error[ticker.symbol] = `Error fetching data for ${ticker.symbol}: ${err.message}`;
+      //     stockData.value[ticker.symbol] = {};
+      //   } finally {
+      //     loading[ticker.symbol] = false;
+      //   }
+      // };
 
-    // const fetchAllStockData = () => {
-    //   stockTickers.forEach((ticker) => fetchStockData(ticker));
-    // };
+      // const fetchAllStockData = () => {
+      //   stockTickers.forEach((ticker) => fetchStockData(ticker));
+      // };
 
-    // onMounted(() => {
-    //   fetchAllStockData();
-    // });
+      // onMounted(() => {
+      //   fetchAllStockData();
+      // });
 
-    // return {
-    //   stockTickers,
-    //   stockData,
-    //   loading,
-    //   error,
+      // return {
+      //   stockTickers,
+      //   stockData,
+      //   loading,
+      //   error,
     };
   },
 };
@@ -179,6 +182,28 @@ body {
   min-height: 100vh;
   min-width: 100%;
   color: #ffff;
+}
+
+.box-diagramm {
+  display: flex;
+  margin: 35px;
+  gap: 15px;
+}
+
+.line-chart {
+  height: 340px;
+  width: 66%;
+  background: #011F35;
+  border-radius: 20px;
+  padding: 20px 32px;
+}
+
+.donut-chart {
+  height: 340px;
+  width: 33%;
+  background: #011F35;
+  border-radius: 20px;
+  padding: 20px 49px;
 }
 
 .box-overview {
