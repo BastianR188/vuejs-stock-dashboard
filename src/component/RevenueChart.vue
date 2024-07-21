@@ -60,6 +60,7 @@ export default {
                     backgroundColor: this.colors[index % this.colors.length],
                     tension: 0.1
                 };
+                
             }).sort((a, b) => b.data[b.data.length - 1] - a.data[a.data.length - 1]);
 
             this.chart = new Chart(ctx, {
@@ -101,6 +102,7 @@ export default {
                         }
                     },
                     plugins: {
+                        datalabels: false,
                         legend: {
                             position: 'right',
                             labels: {
@@ -111,11 +113,12 @@ export default {
                                 font: {
                                     size: 12
                                 }
+                                
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Revenue by Company (Quarterly)',
+                            text: 'Revenue last 3 years',
                             color: '#ffffff',
                             font: {
                                 size: 20,
@@ -140,7 +143,5 @@ export default {
 <style scoped>
 .chart-container {
     position: relative;
-    height: 340px;
-    width: 100%;
 }
 </style>

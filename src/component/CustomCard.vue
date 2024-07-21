@@ -1,6 +1,9 @@
 <template>
   <div class="custom-card">
-    <h2>{{ name }}</h2>
+    <div class="title">
+      <img :src="getImageSrc(ticker)" alt="">
+      <h2>{{ name }}</h2>
+    </div>
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else class="box-data">
@@ -9,19 +12,21 @@
         <div class="revenue"><strong>{{ getLastValue(data['Revenue']) }}</strong></div>
         <div class="other">
           <div>
-            <span :style="{ color: getValueColor('Net Income', getLastValue(data['Net Income'])) }">
-              <strong>{{ getLastValue(data['Net Income']) }}</strong>
-              <span v-if="isPositive(getLastValue(data['Net Income']))"> ↑</span>
+            <span :style="{ color: getValueColor(getRevenueDifference()) }">
+              <strong>{{ getRevenueDifference() }}</strong>
+              <span v-if="isPositive(getRevenueDifference())"> ↑</span>
               <span v-else> ↓</span>
             </span>
           </div>
           <div>
-            <span :style="{ color: getValueColor('Gross Margin', getLastValue(data['Gross Margin'])) }">
-              <strong>{{ getLastValue(data['Gross Margin']) }}</strong>
+            <span :style="{ color: getValueColor(getRevenueGrowth()) }">
+              <strong>{{ getRevenueGrowth() }}</strong>
             </span>
           </div>
         </div>
+
       </div>
+      <span class="box-footer">In Bill USD</span>
     </div>
     <slot></slot>
   </div>
@@ -53,26 +58,47 @@ export default {
     }
   },
   methods: {
+    getImageSrc(ticker) {
+      try {
+        return require(`@/assets/${ticker}.svg`);
+      } catch (e) {
+        console.error(e);
+        return '';
+      }
+    },
     getLastValue(obj) {
       if (!obj) return 'N/A'; // Fallback, falls das Objekt undefined ist
       const values = Object.values(obj);
       return values[values.length - 1];
     },
+    getSecondLastValue(obj) {
+      if (!obj) return 'N/A'; // Fallback, falls das Objekt undefined ist
+      const values = Object.values(obj);
+      return values[values.length - 2];
+    },
     getLastDate() {
-      // Nehmen Sie den ersten Eintrag in data (z.B. Revenue)
-      const firstEntry = Object.values(this.data)[0];
-      if (firstEntry && typeof firstEntry === 'object') {
-        const keys = Object.keys(firstEntry);
-        return keys[keys.length - 1];
+      const revenueData = this.data['Revenue'];
+      if (revenueData && typeof revenueData === 'object') {
+        const keys = Object.keys(revenueData);
+        return keys[keys.length - 1]; // Gibt den letzten Key (Datum) zurück
       }
       return 'N/A'; // Fallback, falls keine Daten vorhanden sind
     },
-    getValueColor(key, value) {
-      if (key === 'Net Income' || key === 'Gross Margin') {
-        const numValue = this.parseValue(value);
-        return numValue >= 0 ? 'green' : 'red';
-      }
-      return 'inherit'; // Standardfarbe für andere Werte
+    getRevenueDifference() {
+      const lastValue = parseFloat(this.getLastValue(this.data['Revenue']).replace(/,/g, ''));
+      const secondLastValue = parseFloat(this.getSecondLastValue(this.data['Revenue']).replace(/,/g, ''));
+      const difference = lastValue - secondLastValue;
+      return difference.toLocaleString();
+    },
+    getRevenueGrowth() {
+      const lastValue = parseFloat(this.getLastValue(this.data['Revenue']).replace(/,/g, ''));
+      const secondLastValue = parseFloat(this.getSecondLastValue(this.data['Revenue']).replace(/,/g, ''));
+      const growth = secondLastValue ? ((lastValue - secondLastValue) / secondLastValue) * 100 : 0;
+      return growth.toFixed(2) + '%';
+    },
+    getValueColor(value) {
+      const numValue = this.parseValue(value);
+      return numValue >= 0 ? 'green' : 'red';
     },
     parseValue(value) {
       // Entfernt Prozentzeichen und wandelt in Zahl um
@@ -100,8 +126,20 @@ export default {
 
 h2 {
   margin: 0 !important;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 23.7px;
+  text-align: left;
 }
 
+img {
+  width: 23.7px;
+  height: 23.7px;
+}
+.title{
+  display: flex;
+  gap: 8px;
+}
 .box {
   display: flex;
   align-items: center;
@@ -112,6 +150,11 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.22px;
+  text-align: left;
+
 }
 
 .revenue {
@@ -119,6 +162,7 @@ h2 {
   font-weight: 500;
   line-height: 28.44px;
   text-align: left;
+
 }
 
 .other {
@@ -127,5 +171,13 @@ h2 {
   line-height: 15.41px;
   text-align: left;
   white-space: nowrap;
+}
+
+.box-footer {
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 9.48px;
+  text-align: left;
+
 }
 </style>

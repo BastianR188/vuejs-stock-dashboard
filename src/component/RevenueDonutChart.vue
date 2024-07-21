@@ -56,13 +56,14 @@ export default {
                         data: data,
                         backgroundColor: this.colors,
                         borderColor: '#ffffff',
-                        borderWidth: 2
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
+                        datalabels: false,
                         legend: {
                             position: 'right',
                             labels: {
@@ -74,7 +75,7 @@ export default {
                         },
                         title: {
                             display: true,
-                            text: 'Latest Revenue by Company',
+                            text: 'Revenue Breakdown Magnificent Seven',
                             color: '#ffffff',
                             font: {
                                 size: 20,
@@ -97,7 +98,5 @@ export default {
 <style scoped>
 .chart-container {
     position: relative;
-    height: 340px;
-    width: 100%;
 }
 </style>
