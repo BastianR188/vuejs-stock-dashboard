@@ -1,7 +1,14 @@
 <template>
   <div id="app">
-    <CustomCard v-for="ticker in stockTickers" :key="ticker.symbol" :ticker="ticker.symbol" :name="ticker.name"
-      :data="stockData[ticker.symbol]" :loading="loading[ticker.symbol]" :error="error[ticker.symbol]" />
+    <CustomCard
+      v-for="ticker in stockTickers"
+      :key="ticker.symbol"
+      :ticker="ticker.symbol"
+      :name="ticker.name"
+      :data="stockData[ticker.symbol]"
+      :loading="loading[ticker.symbol]"
+      :error="error[ticker.symbol]"
+    />
   </div>
 </template>
 
@@ -17,15 +24,14 @@ export default {
   },
   setup() {
     const stockTickers = [
-      { symbol: '$AAPL', name: 'Apple Inc.', indices: [5, 36, 23] },
-      { symbol: '$AMZN', name: 'Amazon.com, Inc.', indices: [9, 41, 15] },
-      { symbol: '$GOOG', name: 'Alphabet Inc.', indices: [5, 41, 25] },
-      { symbol: '$META', name: 'Meta Platforms, Inc.', indices: [5, 27, 11] },
-      { symbol: '$MSFT', name: 'Microsoft Corporation', indices: [9, 30, 15] },
-      { symbol: '$NVDA', name: 'NVIDIA Corporation', indices: [5, 29, 11] },
-      { symbol: '$TSLA', name: 'Tesla, Inc.', indices: [13, 44, 26] }
+      { symbol: '$AAPL', name: 'Apple Inc.', indices: { Revenue: 1, 'Net Income': 32, 'Gross Margin': 19 } },
+      { symbol: '$AMZN', name: 'Amazon.com, Inc.', indices: { Revenue: 5, 'Net Income': 37, 'Gross Margin': 11 } },
+      { symbol: '$GOOG', name: 'Alphabet Inc.', indices: { Revenue: 1, 'Net Income': 37, 'Gross Margin': 21 } },
+      { symbol: '$META', name: 'Meta Platforms, Inc.', indices: { Revenue: 1, 'Net Income': 23, 'Gross Margin': 7 } },
+      { symbol: '$MSFT', name: 'Microsoft Corporation', indices: { Revenue: 5, 'Net Income': 26, 'Gross Margin': 11 } },
+      { symbol: '$NVDA', name: 'NVIDIA Corporation', indices: { Revenue: 1, 'Net Income': 25, 'Gross Margin': 7 } },
+      { symbol: '$TSLA', name: 'Tesla, Inc.', indices: { Revenue: 9, 'Net Income': 40, 'Gross Margin': 22 } }
     ];
-
 
     const stockData = ref({});
     const loading = reactive({});
@@ -35,21 +41,35 @@ export default {
       loading[ticker.symbol] = true;
       error[ticker.symbol] = null;
       try {
-        console.log(`Fetching data for ${ticker.symbol}`);
-        const response = await ApiService.fetchData(ticker.symbol, ticker.indices);
-        console.log(`Filtered data for ${ticker.symbol}:`, response);
+        const response = await ApiService.fetchData(ticker.symbol, Object.values(ticker.indices));
+        console.log(`Raw data for ${ticker.symbol}:`, response);
 
         if (Array.isArray(response)) {
-          stockData.value[ticker.symbol] = response;
+          // Mapping der Daten
+          const mappedData = Object.keys(ticker.indices).reduce((acc, key, index) => {
+            const dataObject = response[index];
+            if (dataObject && typeof dataObject === 'object') {
+              // Entferne den ersten Eintrag (der leere Schlüssel-Wert-Paar)
+              const rest = { ...dataObject };
+              delete rest[""];
+              acc[key] = rest;
+            } else {
+              acc[key] = dataObject;
+            }
+            return acc;
+          }, {});
+
+          stockData.value[ticker.symbol] = mappedData;
+          console.log(`Mapped data for ${ticker.symbol}:`, mappedData);
         } else {
           console.error(`Unexpected data structure for ${ticker.symbol}:`, response);
-          stockData.value[ticker.symbol] = [];
+          stockData.value[ticker.symbol] = {};
           error[ticker.symbol] = `Invalid data structure for ${ticker.symbol}`;
         }
       } catch (err) {
         console.error(`Error fetching data for ${ticker.symbol}:`, err);
         error[ticker.symbol] = `Error fetching data for ${ticker.symbol}: ${err.message}`;
-        stockData.value[ticker.symbol] = [];
+        stockData.value[ticker.symbol] = {};
       } finally {
         loading[ticker.symbol] = false;
       }

@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'https://sheetdb.io/api/v1/6ub8ifz7kw9ft';
+const API_URL = 'https://sheetdb.io/api/v1/i4vmzb5wbr8vx';
 // const order = [
 //     'Mar 21', 'Jun 21', 'Sep 21', 'Dec 21',
 //     'Mar 22', 'Jun 22', 'Sep 22', 'Dec 22',
@@ -15,15 +15,11 @@ export default {
     }),
     async fetchData(sheetName, indices) {
       try {
-        console.log(`Fetching data for ${sheetName}`);
         const url = `?sheet=${encodeURIComponent(sheetName)}`;
-        console.log(`Full URL: ${API_URL}${url}`);
   
         const response = await this.apiClient.get(url);
-        console.log(`Response for ${sheetName}:`, response);
   
         const rawData = response.data;
-        
         if (Array.isArray(indices) && indices.length > 0) {
           const filteredData = indices.map(index => rawData[index]);
           return filteredData;
