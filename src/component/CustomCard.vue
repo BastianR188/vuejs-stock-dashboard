@@ -4,15 +4,7 @@
       <div v-if="loading">Loading...</div>
       <div v-else-if="error">{{ error }}</div>
       <div v-else>
-        <!-- Hier zeigen wir nur die Länge des Arrays an -->
-        <p>Anzahl der Datenpunkte: {{ data.length }}</p>
-        <!-- Wenn Sie die ersten paar Elemente anzeigen möchten: -->
-        <p>Erste 5 Elemente:</p>
-        <ul>
-          <li v-for="(item, index) in data.slice(0, 5)" :key="index">
-            {{ item }}
-          </li>
-        </ul>
+        
       </div>
       <slot></slot>
     </div>

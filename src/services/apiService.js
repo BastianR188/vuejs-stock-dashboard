@@ -9,28 +9,40 @@ const API_URL = 'https://sheetdb.io/api/v1/6ub8ifz7kw9ft';
 //     '1 Feb 24', '2 Mai 24'
 // ];
 
-class ApiService {
-    constructor() {
-      this.data = [];
-      this.apiClient = axios.create({
-        baseURL: API_URL,
-      });
-    }
-  
-    async fetchData(sheetName) {
+export default {
+    apiClient: axios.create({
+      baseURL: API_URL,
+    }),
+    async fetchData(sheetName, indices) {
       try {
-        // Füge den 'offset' Parameter hinzu, um die ersten 3 Zeilen zu überspringen
-        const response = await this.apiClient.get(`?sheet=${sheetName}`);
-        
-        // Speichere die Daten in einer Variable (z.B. this.sheetData)
-        this.sheetData = response.data;
-        
-        return this.sheetData;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        return [];
-      }
-    }
-  }
+        console.log(`Fetching data for ${sheetName}`);
+        const url = `?sheet=${encodeURIComponent(sheetName)}`;
+        console.log(`Full URL: ${API_URL}${url}`);
   
-  export default new ApiService();
+        const response = await this.apiClient.get(url);
+        console.log(`Response for ${sheetName}:`, response);
+  
+        const rawData = response.data;
+        
+        if (Array.isArray(indices) && indices.length > 0) {
+          const filteredData = indices.map(index => rawData[index]);
+          return filteredData;
+        } else {
+          console.warn(`No indices provided for ${sheetName}, returning all data`);
+          return rawData;
+        }
+      } catch (error) {
+        console.error(`Error fetching data for ${sheetName}:`, error);
+        if (error.response) {
+          console.error('Error response:', error.response.data);
+          console.error('Error status:', error.response.status);
+          console.error('Error headers:', error.response.headers);
+        } else if (error.request) {
+          console.error('Error request:', error.request);
+        } else {
+          console.error('Error message:', error.message);
+        }
+        throw error;
+      }
+    },
+  };
