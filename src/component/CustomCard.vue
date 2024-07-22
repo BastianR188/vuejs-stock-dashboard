@@ -113,6 +113,9 @@ export default {
 </script>
 
 <style scoped>
+body{
+  scroll-behavior: smooth;
+}
 .custom-card {
   background: #011F35;
   padding: 24px;

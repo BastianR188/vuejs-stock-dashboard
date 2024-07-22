@@ -4,9 +4,15 @@
       <div class="stroke"></div>
       <h1>The Magnificent Seven Companies</h1>
     </div>
-    <div class="box-overview">
-      <CustomCard v-for="ticker in stockTickers" :key="ticker.symbol" :ticker="ticker.symbol" :name="ticker.name"
-        :data="stockData[ticker.symbol]" :loading="loading[ticker.symbol]" :error="error[ticker.symbol]" />
+    <div style="position: relative;">
+      <button class="scroll-button left" @click="scrollLeft" v-show="canScrollLeft"><img
+          src="./assets/arrow.svg"></button>
+      <div class="box-overview" ref="scrollContent" @scroll="checkScrollable">
+        <CustomCard v-for="ticker in stockTickers" :key="ticker.symbol" :ticker="ticker.symbol" :name="ticker.name"
+          :data="stockData[ticker.symbol]" :loading="loading[ticker.symbol]" :error="error[ticker.symbol]" />
+      </div>
+      <button class="scroll-button right" @click="scrollRight" v-show="canScrollRight"><img
+          src="./assets/arrow.svg"></button>
     </div>
     <div class="box-diagramm">
       <RevenueChart :stockData="stockData" class="line-chart" />
@@ -42,6 +48,40 @@ export default {
 
   },
   setup() {
+    const scrollContent = ref(null);
+    const canScrollLeft = ref(false);
+    const canScrollRight = ref(false);
+
+    const checkScrollable = () => {
+      if (scrollContent.value) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContent.value;
+        canScrollLeft.value = scrollLeft > 0;
+        canScrollRight.value = scrollLeft < scrollWidth - clientWidth;
+      }
+    };
+
+    const scrollLeft = () => {
+      if (scrollContent.value) {
+        scrollContent.value.scrollBy({
+          left: -224,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    const scrollRight = () => {
+      if (scrollContent.value) {
+        scrollContent.value.scrollBy({
+          left: 224,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    onMounted(() => {
+      checkScrollable();
+      window.addEventListener('resize', checkScrollable);
+    });
     // const stockTickers = [
     //   { symbol: '$AAPL', name: 'Apple', indices: { Revenue: 1, 'Net Income': 32, 'Gross Margin': 19 } },
     //   { symbol: '$AMZN', name: 'Amazon', indices: { Revenue: 5, 'Net Income': 37, 'Gross Margin': 11 } },
@@ -204,6 +244,12 @@ export default {
       stockData,
       loading,
       error,
+      scrollContent,
+      scrollLeft,
+      scrollRight,
+      canScrollLeft,
+      canScrollRight,
+      checkScrollable
 
       // const fetchStockData = async (ticker) => {
       //   loading[ticker.symbol] = true;
@@ -257,6 +303,7 @@ export default {
       //   loading,
       //   error,
     };
+
   },
 };
 </script>
@@ -278,7 +325,8 @@ h1 {
   line-height: 42.66px;
   text-align: left;
 }
-.stroke{
+
+.stroke {
   position: absolute;
   background: #39DAFF;
   border-radius: 0 100px 100px 0;
@@ -287,6 +335,7 @@ h1 {
   right: 100%;
   top: 32px;
 }
+
 .app {
   max-width: 1280px;
   padding: 36px;
@@ -334,5 +383,37 @@ h1 {
   height: 190px;
   padding: 24px;
   border-radius: 20px;
+  overflow: hidden;
+}
+
+.scroll-button {
+  width: 30px;
+  height: 30px;
+  background: #39DAFF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: calc(50% - 15px);
+  display: flex;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.scroll-button:hover {
+  transform: scale(1.2);
+}
+
+.scroll-button.left {
+  left: -15px;
+  transform: rotate(180deg);
+}
+
+.scroll-button.left:hover {
+  transform: scale(1.2) rotate(180deg);
+}
+
+.scroll-button.right {
+  right: -15px;
 }
 </style>
